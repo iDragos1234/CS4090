@@ -1,6 +1,7 @@
 libs/
 
 # PyCharm
+.idea
 .idea/
 
 # Environments
