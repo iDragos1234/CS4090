@@ -15,6 +15,9 @@ venv.bak/
 
 # ignore log files
 log
+cysignals_crash_logs
+#project/**/log
+#project/**/log/
 
 # Byte-compiled / optimized / DLL files
 __pycache__
