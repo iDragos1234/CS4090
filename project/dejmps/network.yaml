@@ -1,6 +1,6 @@
 nodes:
-  - name: "the_hague"
-    gate_fidelity: 1
+  - name: "alice"
+    gate_fidelity: 1.0
     qubits:
       - id: 0
         t1: 0
@@ -8,8 +8,8 @@ nodes:
       - id: 1
         t1: 0
         t2: 0
-  - name: "delft"
-    gate_fidelity: 1
+  - name: "bob"
+    gate_fidelity: 1.0
     qubits:
       - id: 0
         t1: 0
@@ -20,7 +20,7 @@ nodes:
 
 links:
   - name: ch1
-    node_name1: "delft"
-    node_name2: "the_hague"
+    node_name1: "alice"
+    node_name2: "bob"
     noise_type: Depolarise
-    fidelity: 0.7
+    fidelity: 0.0

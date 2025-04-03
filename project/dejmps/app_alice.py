@@ -1,9 +1,11 @@
 from dejmps import dejmps_protocol_alice
 from netqasm.sdk import Qubit, EPRSocket
-from netqasm.sdk.external import NetQASMConnection, Socket
+from netqasm.sdk.external import NetQASMConnection, Socket, get_qubit_state
+from netqasm.sdk.toolbox.sim_states import qubit_from, to_dm, get_fidelity
 from netqasm.sdk.classical_communication.message import StructuredMessage
-from netqasm.sdk.external import get_qubit_state
 from netqasm.logging.output import get_new_app_logger
+
+import numpy as np
 
 
 def main(app_config=None):
@@ -26,35 +28,46 @@ def main(app_config=None):
     # Create Alice's context, initialize EPR pairs inside it and call Alice's DEJMPS method.
     # Finally, print out whether Alice successfully created an EPR Pair with Bob.
     with alice:
+        # Create two EPR pairs
         epr1 = epr_socket.create()[0]
         epr2 = epr_socket.create()[0]
 
-        # U_A = Rot_X(pi/2)
+        # Apply DEJMPS circuit for Alice with U_A = Rot_X(pi/2)
         epr1.rot_X(n=1, d=1)
         epr2.rot_X(n=1, d=1)
         epr1.cnot(epr2)
         m_alice = epr2.measure()
 
-        alice.flush()
+        alice.flush()  # NOTE: Flush before doing any further operations within this `with`!
+
+        # Collect Alice's and Bob's measurements
         m_alice = int(m_alice)
+        m_bob = int(socket.recv_structured().payload)
 
-        message = StructuredMessage(
-            header='m_alice',
-            payload=m_alice,
-        )
-        socket.send_structured(message)
+        # Get the density matrix of the output EPR pair
+        epr1_dm = get_qubit_state(epr1, reduced_dm=False)
 
-        response = socket.recv_structured()
-        m_bob = response.payload if message.header == 'm_bob' else None
+        # Compute fidelity wrt. target state (i.e., the pure Bell state)
+        target_state = 1 / np.sqrt(2) * np.array([1, 0, 0, 1], dtype=complex)
+        fidelity = compute_fidelity(epr1_dm, target_state)
 
-        print(f'Alice has the following measurements: m_alice = {m_alice}, m_bob = {m_bob}.')
-        print(f'DEJMPS successful? {m_alice == m_bob}.')
-        print(f'EPR_out state: {get_qubit_state(epr1)}.')
+        debug_message = f'DEJMPS Simulation:\n'\
+                        f'------------------\n'\
+                        f'Measurements: m_alice = {m_alice}, m_bob = {m_bob};\n'\
+                        f'Successful? {m_alice == m_bob};\n'\
+                        f'EPR_out state: \n{np.round(epr1_dm, 5)};\n'\
+                        f'Target state: \n{np.round(target_state, 5)};\n'\
+                        f'Fidelity: {fidelity}.\n'
 
-        # original = qubit_from(phi, theta)
-        # original_dm = to_dm(original)
-        # fidelity = get_fidelity(original, dm)
-        # print(f"fidelity {fidelity}")
+        print(debug_message)
+        app_logger.log(debug_message)
+
+
+def compute_fidelity(dm, ket):
+    """Compute fidelity between a density matrix and a ket state."""
+    fidelity = np.real(np.conjugate(ket) @ dm @ ket)
+    assert np.imag(fidelity) == 0
+    return np.real(fidelity)
 
 
 if __name__ == "__main__":
