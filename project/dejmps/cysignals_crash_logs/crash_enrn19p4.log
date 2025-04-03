@@ -1,0 +1,66 @@
+GNU gdb (Ubuntu 12.1-0ubuntu1~22.04) 12.1
+Copyright (C) 2022 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word".
+[New LWP 3554]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x00005711d3fb8067 in ?? ()
+
+Stack backtrace
+---------------
+No symbol table info available.
+#1  0x00005711d4004d72 in ?? ()
+No symbol table info available.
+#2  0x00005711d3fb8107 in ?? ()
+No symbol table info available.
+#3  0x00005711d405c7df in PyDict_Clear ()
+No symbol table info available.
+#4  0x00005711d40eb59a in ?? ()
+No symbol table info available.
+#5  0x00005711d3fbbfa1 in ?? ()
+No symbol table info available.
+#6  0x00005711d40f6970 in ?? ()
+No symbol table info available.
+#7  0x00005711d40f24c8 in Py_FinalizeEx ()
+No symbol table info available.
+#8  0x00005711d40e3913 in Py_RunMain ()
+No symbol table info available.
+#9  0x00005711d40ba02d in Py_BytesMain ()
+No symbol table info available.
+#10 0x00007f8371e29d90 in __libc_start_call_main (
+    main=main@entry=0x5711d40b9ff0, argc=argc@entry=3, 
+    argv=argv@entry=0x7ffec621aba8)
+    at ../sysdeps/nptl/libc_start_call_main.h:58
+        self = <optimized out>
+        result = <optimized out>
+        unwind_buf = {cancel_jmp_buf = {{jmp_buf = {0, -2365861860165379289, 
+                140732222516136, 95734083592176, 95734086953016, 
+                140202532380736, 2366440870706977575, 2318270692367047463}, 
+              mask_was_saved = 0}}, priv = {pad = {0x0, 0x0, 0x0, 0x0}, 
+            data = {prev = 0x0, cleanup = 0x0, canceltype = 0}}}
+        not_first_call = <optimized out>
+#11 0x00007f8371e29e40 in __libc_start_main_impl (main=0x5711d40b9ff0, argc=3, 
+    argv=0x7ffec621aba8, init=<optimized out>, fini=<optimized out>, 
+    rtld_fini=<optimized out>, stack_end=0x7ffec621ab98)
+    at ../csu/libc-start.c:392
+No locals.
+#12 0x00005711d40b9f25 in _start ()
+No symbol table info available.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[Inferior 1 (process 3546) detached]
+Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+ModuleNotFoundError: No module named 'Cython'
+Error while executing Python code.

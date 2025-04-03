@@ -1,0 +1,54 @@
+- AID: 0
+  HFL: null
+  HLN: null
+  INS: x
+  LOG: Doing instruction x with operands ['Q0=0']
+  OPR:
+  - Q0=0
+  OUT: null
+  PRC: 1
+  QGR:
+    7987972672624:
+      is_entangled: false
+      qubit_ids:
+      - - receiver
+        - 0
+      state:
+      - - !!python/complex '0.5353686076665486'
+        - !!python/complex '-0.49874749281748754+2.465190328815662e-32j'
+      - - !!python/complex '-0.49874749281748754-2.465190328815662e-32j'
+        - !!python/complex '0.46463139233345147'
+  QID:
+  - 0
+  SID: 1
+  SIT: 631744.0
+  VID:
+  - 0
+  WCT: '2025-03-21 17:10:40.750228'
+- AID: 0
+  HFL: null
+  HLN: null
+  INS: z
+  LOG: Doing instruction z with operands ['Q0=0']
+  OPR:
+  - Q0=0
+  OUT: null
+  PRC: 3
+  QGR:
+    7987972672624:
+      is_entangled: false
+      qubit_ids:
+      - - receiver
+        - 0
+      state:
+      - - !!python/complex '0.5353686076665486'
+        - !!python/complex '0.49874749281748754-2.465190328815662e-32j'
+      - - !!python/complex '0.49874749281748754+2.465190328815662e-32j'
+        - !!python/complex '0.46463139233345147'
+  QID:
+  - 0
+  SID: 1
+  SIT: 632744.0
+  VID:
+  - 0
+  WCT: '2025-03-21 17:10:40.751089'

@@ -1,0 +1,45 @@
+- AID: 0
+  HFL: null
+  HLN: null
+  INS: z
+  LOG: Doing instruction z with operands ['Q0=0']
+  OPR:
+  - Q0=0
+  OUT: null
+  PRC: 18
+  QGR:
+    7891869748456:
+      is_entangled: false
+      qubit_ids:
+      - - bob
+        - 0
+      state:
+      - - !!python/complex '0.0'
+        - !!python/complex '0.0'
+      - - !!python/complex '0.0'
+        - !!python/complex '1.0'
+  QID:
+  - 0
+  SID: 0
+  SIT: 612027.0
+  VID:
+  - 0
+  WCT: '2025-04-01 00:02:37.142677'
+- AID: 0
+  HFL: null
+  HLN: null
+  INS: meas
+  LOG: Doing instruction meas with operands ['Q0=0', 'M0=1']
+  OPR:
+  - Q0=0
+  - M0=1
+  OUT: 1
+  PRC: 20
+  QGR: {}
+  QID:
+  - 0
+  SID: 0
+  SIT: 612027.0
+  VID:
+  - 0
+  WCT: '2025-04-01 00:02:37.142913'
