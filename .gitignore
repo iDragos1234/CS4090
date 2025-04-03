@@ -1,0 +1,8 @@
+# ignore IDE files
+.idea
+
+# ignore venv files
+venv
+
+# ignore log files
+project/**/log
