@@ -16,6 +16,7 @@ venv.bak/
 # ignore log files
 log
 cysignals_crash_logs
+cysignals_crash_logs/
 #project/**/log
 #project/**/log/
 
