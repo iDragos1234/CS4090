@@ -1,17 +1,9 @@
-# NetQASM and SquidASM libs
-#libs/
-
 # PyCharm
 .idea
-.idea/
 
 # ignore log files
-log
-cysignals_crash_logs
-cysignals_crash_logs/
-#project/**/log
-#project/**/log/
+project/**/log
+project/**/cysignals_crash_logs
 
 # Byte-compiled / optimized / DLL files
-__pycache__
-__pycache__/
+project/**/__pycache__
