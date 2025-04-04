@@ -1,4 +1,5 @@
-libs/
+# NetQASM and SquidASM libs
+#libs/
 
 # PyCharm
 .idea
