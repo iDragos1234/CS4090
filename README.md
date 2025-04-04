@@ -1,20 +1,31 @@
-# CS4090 Quantum Communication and Cryptography Project
+# CS4090 Quantum Communication and Cryptography: Programming Project
 
-## Entanglement Distillation Protocols:
 
-For this project, we implemented the following four entanglement distillation protocols:
-1. __DEJMPS__;
-2. __EPL__;
-3. __BBPSSW__;
-4. __Three-to-one__;
+## How to run
 
-We will use only __depolarizing noise__, with only two possible sources of noise:
+Change directory to the folder of the protocol you want to run, e.g., DEJMPS:
+
+> ```cd ~/CS4090/project/dejmps```
+
+Simulate the protocol by running the following command in the DEJMPS folder:
+
+> ```netsquid simulate```
+
+
+## Distillation Protocols
+
+In this project, we provide implementations for the following four entanglement distillation protocols:
+1. DEJMPS;
+2. EPL;
+3. BBPSSW;
+4. Three-to-one
+
+We will use only __depolarizing noise__, originating from only two possible sources of noise:
 * __Entangle state noise__;
 * __Gate noise__.
 
 
-## Entangled gate noise:
-
+### Entangled gate noise:
 * To perform distillation, Alice and Bob must share entangled pairs.
 
 * These pairs are assumed to be __Werner states__ (always):
@@ -23,7 +34,5 @@ where $\vert\phi_{00}\rangle = \frac{1}{\sqrt{2}} \left( \vert00\rangle + \vert1
 
 * A Werner state is a Bell state subject to a depolarizing channel of parameter $p$.
 
-
-## Gate noise
-
-* 
+### Gate noise
+[placeholder]
