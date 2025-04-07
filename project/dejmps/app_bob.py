@@ -6,11 +6,14 @@ from netqasm.logging.output import get_new_app_logger
 
 
 def main(app_config=None):
-    log_config = app_config.log_config
-    app_logger = get_new_app_logger(app_name="sender", log_config=log_config)
+    # log_config = app_config.log_config
+    # app_logger = get_new_app_logger(app_name="sender", log_config=log_config)
 
     # Create a socket for classical communication
-    socket = Socket('bob', 'alice', log_config=log_config)
+    socket = Socket(
+        'bob', 'alice',
+        # log_config=log_config,
+    )
 
     # Create a EPR socket for entanglement generation
     epr_socket = EPRSocket('alice')
@@ -19,7 +22,7 @@ def main(app_config=None):
     bob = NetQASMConnection(
         app_name=app_config.app_name,
         epr_sockets=[epr_socket],
-        log_config=log_config,
+        # log_config=log_config,
     )
 
     # Create Bob's context, initialize EPR pairs inside it and call Bob's DEJMPS method.

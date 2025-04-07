@@ -9,11 +9,14 @@ import numpy as np
 
 
 def main(app_config=None):
-    log_config = app_config.log_config
-    app_logger = get_new_app_logger(app_name="sender", log_config=log_config)
+    # log_config = app_config.log_config
+    # app_logger = get_new_app_logger(app_name="sender", log_config=log_config)
 
     # Create a socket for classical communication
-    socket = Socket('alice', 'bob', log_config=log_config)
+    socket = Socket(
+        'alice', 'bob',
+        # log_config=log_config,
+    )
 
     # Create a EPR socket for entanglement generation
     epr_socket = EPRSocket('bob')
@@ -22,7 +25,7 @@ def main(app_config=None):
     alice = NetQASMConnection(
         app_name=app_config.app_name,
         epr_sockets=[epr_socket],
-        log_config=log_config,
+        # log_config=log_config,
     )
 
     # Create Alice's context, initialize EPR pairs inside it and call Alice's DEJMPS method.
@@ -59,7 +62,7 @@ def main(app_config=None):
                         f'Target state: \n{np.round(target_state, 5)};\n'\
                         f'Fidelity: {fidelity};\n'
 
-        app_logger.log(debug_message)
+        # app_logger.log(debug_message)
 
         # Output simulation results in the following standard format:
         # `(m_alice, m_bob, fidelity)`
