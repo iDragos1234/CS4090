@@ -57,10 +57,13 @@ def main(app_config=None):
                         f'Successful? {m_alice == m_bob};\n'\
                         f'EPR_out state: \n{np.round(epr1_dm, 5)};\n'\
                         f'Target state: \n{np.round(target_state, 5)};\n'\
-                        f'Fidelity: {fidelity}.\n'
+                        f'Fidelity: {fidelity};\n'
 
-        print(debug_message)
         app_logger.log(debug_message)
+
+        # Output simulation results in the following standard format:
+        # `(m_alice, m_bob, fidelity)`
+        print(m_alice, m_bob, fidelity)
 
 
 def compute_fidelity(dm, ket):
