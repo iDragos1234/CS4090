@@ -1,6 +1,12 @@
 # PyCharm
 .idea
 
+# NetQASM/SquidASM libs
+libs
+
+# Virtual Envs
+venv
+
 # ignore log files
 project/**/log
 project/**/cysignals_crash_logs
