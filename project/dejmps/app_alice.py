@@ -65,7 +65,7 @@ def main(app_config=None):
 
 def compute_fidelity(dm, ket):
     """Compute fidelity between a density matrix and a ket state."""
-    fidelity = np.real(np.conjugate(ket) @ dm @ ket)
+    fidelity = np.conjugate(ket) @ dm @ ket
     assert np.imag(fidelity) == 0
     return np.real(fidelity)
 

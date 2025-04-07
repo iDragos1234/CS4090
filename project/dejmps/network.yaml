@@ -24,3 +24,9 @@ links:
     node_name2: "bob"
     noise_type: Depolarise
     fidelity: 1.0
+
+  - name: ch2
+    node_name1: "alice"
+    node_name2: "bob"
+    noise_type: Depolarise
+    fidelity: 1.0
