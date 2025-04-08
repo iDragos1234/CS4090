@@ -50,11 +50,12 @@ def main():
                     while not flag and attempt_num < MAX_ATTEMPTS:
                         try:
                             output = subprocess.check_output('netqasm simulate', shell=True)
-                        except subprocess.SubprocessError | TimeoutError as err:
+                        except (subprocess.SubprocessError, TimeoutError) as err:
                             num_errors += 1
                             attempt_num += 1
                             pass
                         except Exception as other_err:
+                            num_errors += 1
                             print(f'Other errors: {other_err}')
                             raise Exception(f'Other errors: {other_err}')
                         else:
@@ -67,6 +68,8 @@ def main():
                     m_alice, m_bob, fidelity = parse(output)
                     results.append([gate_fidelity, epr_fidelity, sample_idx, m_alice, m_bob, fidelity])
                     print(results[-1])
+    except Exception as err:
+        raise Exception(f'Simulation error: {err}')
     finally:
         # Save simulation results
         print('Saving ...')
@@ -79,10 +82,11 @@ def main():
         results.to_csv('./out.csv', mode='a')
         # NOTE: to read DataFrame from CSV file, do: `pd.read_csv('./store.pkl')`
 
+        print('Simulation terminated')
         print(f'Elapsed time: {perf_counter() - t0}')
         print(f'No. Errors: {num_errors}')
-        print('Results:')
-        print(results)
+        # print('Results:')
+        # print(results)
 
 
 if __name__ == '__main__':
