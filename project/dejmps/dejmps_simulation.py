@@ -1,8 +1,10 @@
+import sys
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from time import perf_counter
 
+sys.path.append('./../')
 from simulation_utils import *
 
 
@@ -79,8 +81,10 @@ def get_fidel_succ_mean_sd(df: pd.DataFrame):
         df.query('M_Alice == M_Bob')['Fidelity'].std(),
     ]
 
+#-------------------------------------------------------------------------------------------------------------------
+
 # Read simulation results
-data = pd.read_csv('./../out.csv')
+data = pd.read_csv('./out.csv')
 
 # Group data by gate and channel fidelity
 data = data.groupby(['Gate fidelity', 'EPR channel fidelity'])\
@@ -132,7 +136,7 @@ markers, caps, bars = ax.errorbar(
 # Plot as surface
 x = np.unique(p_succ_mean_sd[:,0])
 y = np.unique(p_succ_mean_sd[:,1])
-z = np.reshape(p_succ_mean_sd[:,2], (3, 6))
+z = np.reshape(p_succ_mean_sd[:,2], (len(x), len(y)))
 
 x, y = np.meshgrid(x, y)
 x, y = x.T, y.T  # works for some reason, idk why
