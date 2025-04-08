@@ -12,4 +12,4 @@ project/**/log
 project/**/cysignals_crash_logs
 
 # Byte-compiled / optimized / DLL files
-project/**/__pycache__
+__pycache__
