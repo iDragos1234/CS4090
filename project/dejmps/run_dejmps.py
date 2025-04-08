@@ -9,10 +9,10 @@ def main():
     # inside the folder of the simulated protocol, with venv activated.
 
     # Parameter sweeps
-    GATE_FID_SWEEP = np.linspace(0, 1, 6)
-    EPR_FID_SWEEP = np.linspace(0, 1, 6)
-    NUM_SAMPLES = 100  # Set number of samples for each parameter configuration
-    MAX_ATTEMPTS = 3  # Maximum number of attempts for generating a single sample
+    GATE_FID_SWEEP = [0.6, 0.8, 1.0]  # np.linspace(0, 1, 6)
+    EPR_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]  # np.linspace(0, 1, 6)
+    NUM_SAMPLES = 25  # Set number of samples for each parameter configuration
+    MAX_ATTEMPTS = 5  # Maximum number of attempts for generating a single sample
 
     # # Change directory into the folder of the simulated protocol
     # subprocess.run('ls -lahF', shell=True, cwd='/home/cs4090/CS4090/project/dejmps')
