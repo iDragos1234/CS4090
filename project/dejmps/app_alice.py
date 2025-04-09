@@ -9,14 +9,9 @@ import numpy as np
 
 
 def main(app_config=None):
-    # log_config = app_config.log_config
-    # app_logger = get_new_app_logger(app_name="sender", log_config=log_config)
 
     # Create a socket for classical communication
-    socket = Socket(
-        'alice', 'bob',
-        # log_config=log_config,
-    )
+    socket = Socket('alice', 'bob')
 
     # Create a EPR socket for entanglement generation
     epr_socket = EPRSocket('bob')
@@ -25,48 +20,57 @@ def main(app_config=None):
     alice = NetQASMConnection(
         app_name=app_config.app_name,
         epr_sockets=[epr_socket],
-        # log_config=log_config,
     )
+
+    NUM_SAMPLES = 1
+    results = []
 
     # Create Alice's context, initialize EPR pairs inside it and call Alice's DEJMPS method.
     # Finally, print out whether Alice successfully created an EPR Pair with Bob.
     with alice:
         # Create two EPR pairs
         epr1 = epr_socket.create()[0]
-        epr2 = epr_socket.create()[0]
+        alice.flush()
 
-        # Apply DEJMPS circuit for Alice with U_A = Rot_X(pi/2)
-        epr1.rot_X(n=1, d=1)
-        epr2.rot_X(n=1, d=1)
-        epr1.cnot(epr2)
-        m_alice = epr2.measure()
+        for sample_idx in range(NUM_SAMPLES):
+            epr2 = epr_socket.create()[0]
+            alice.flush()
 
-        alice.flush()  # NOTE: Flush before doing any further operations within this `with`!
+            # Apply DEJMPS circuit for Alice with U_A = Rot_X(pi/2)
+            epr1.rot_X(n=1, d=1)  # U_A
+            epr2.rot_X(n=1, d=1)  # U_A
+            epr1.cnot(epr2)       # CNOT
+            alice.flush()
 
-        # Collect Alice's and Bob's measurements
-        m_alice = int(m_alice)
-        m_bob = int(socket.recv_structured().payload)
+            m_alice = epr2.measure()
+            alice.flush()
 
-        # Get the density matrix of the output EPR pair
-        epr1_dm = get_qubit_state(epr1, reduced_dm=False)
+            # Collect Alice's and Bob's measurements
+            m_alice = int(m_alice)
+            m_bob = int(socket.recv_structured().payload)
 
-        # Compute fidelity wrt. target state (i.e., the pure Bell state)
-        target_state = 1 / np.sqrt(2) * np.array([1, 0, 0, 1], dtype=complex)
-        fidelity = compute_fidelity(epr1_dm, target_state)
+            # Get the density matrix of the output EPR pair
+            epr1_dm = get_qubit_state(epr1, reduced_dm=False)
 
-        debug_message = f'DEJMPS Simulation:\n'\
-                        f'------------------\n'\
-                        f'Measurements: m_alice = {m_alice}, m_bob = {m_bob};\n'\
-                        f'Successful? {m_alice == m_bob};\n'\
-                        f'EPR_out state: \n{np.round(epr1_dm, 5)};\n'\
-                        f'Target state: \n{np.round(target_state, 5)};\n'\
-                        f'Fidelity: {fidelity};\n'
+            # Compute fidelity wrt. target state (i.e., the pure Bell state)
+            target_state = 1 / np.sqrt(2) * np.array([1, 0, 0, 1], dtype=complex)
+            fidelity = compute_fidelity(epr1_dm, target_state)
 
-        # app_logger.log(debug_message)
+            debug_message = f'DEJMPS Simulation:\n'\
+                            f'------------------\n'\
+                            f'Measurements: m_alice = {m_alice}, m_bob = {m_bob};\n'\
+                            f'Successful? {m_alice == m_bob};\n'\
+                            f'EPR_out state: \n{np.round(epr1_dm, 5)};\n'\
+                            f'Target state: \n{np.round(target_state, 5)};\n'\
+                            f'Fidelity: {fidelity};\n'
 
-        # Output simulation results in the following standard format:
-        # `(m_alice, m_bob, fidelity)`
-        print(m_alice, m_bob, fidelity)
+            # Output simulation results in the following format:
+            print(m_alice, m_bob, fidelity)
+            results.append([m_alice, m_bob, fidelity])
+
+        # p_succ = 1 - np.mean(list(map(lambda x: x[0] ^ x[1], results)))
+        # f_succ_mean = np.mean(list(map(lambda x: x[2], filter(lambda x: x[0] == x[1], results))))
+        # print(p_succ, f_succ_mean)
 
 
 def compute_fidelity(dm, ket):

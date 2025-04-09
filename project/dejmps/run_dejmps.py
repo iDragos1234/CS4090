@@ -4,13 +4,15 @@ import pandas as pd
 from time import perf_counter
 
 
+# TODO: write output data to CSV in batches (to be implemented on a sunny day)
+
 def main():
     # NOTE: To simulate a protocol, this python file needs to be executed
     # inside the folder of the simulated protocol, with venv activated.
 
     # Parameter sweeps
-    GATE_FID_SWEEP = [0.6, 0.8, 1.0]  # np.linspace(0, 1, 6)
-    EPR_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]  # np.linspace(0, 1, 6)
+    GATE_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+    EPR_FID_SWEEP  = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
     NUM_SAMPLES = 25  # Set number of samples for each parameter configuration
     MAX_ATTEMPTS = 5  # Maximum number of attempts for generating a single sample
 
