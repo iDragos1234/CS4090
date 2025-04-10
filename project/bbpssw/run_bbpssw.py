@@ -5,9 +5,15 @@ from time import perf_counter
 
 
 def parse(bytestring: bytes):
-    s = bytestring.decode('utf-8').strip().split(' ')
-    m_alice, m_bob, fidelity = s
-    return int(m_alice), int(m_bob), float(fidelity)
+    lines = bytestring.decode('utf-8').strip().splitlines()
+    for line in reversed(lines):
+        try:
+            parts = line.strip().split()
+            if len(parts) == 3:
+                return int(parts[0]), int(parts[1]), float(parts[2])
+        except Exception:
+            continue
+    raise ValueError("Could not find valid output line.")
 
 
 def main():
@@ -37,6 +43,7 @@ def main():
                     while not flag and attempt_num < MAX_ATTEMPTS:
                         try:
                             output = subprocess.check_output('netqasm simulate', shell=True)
+                            print("Raw subprocess output:\n", output.decode("utf-8"))
                         except Exception:
                             num_errors += 1
                             attempt_num += 1
