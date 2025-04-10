@@ -29,16 +29,12 @@ def bbpssw_protocol_alice(q1, q2, alice, socket):
 
 def bbpssw_gates_and_measurement_alice(q1, q2):
     """
-    Performs the gates and measurements for Alice's side of the BBPSSW protocol
-    :param q1: Alice's qubit from the first entangled pair
-    :param q2: Alice's qubit from the second entangled pair
-    :return: Integer 0/1 indicating Alice's measurement outcome
+    Alice: Apply CNOT(q1 to q2), measure only q2.
     """
     q1.cnot(q2)
-    q1.h()
-    m1 = q1.measure()
-    m2 = q2.measure()
-    return m1 + m2
+    m = q2.measure()
+    return m
+
 
 
 def bbpssw_protocol_bob(q1, q2, bob, socket):
@@ -68,14 +64,9 @@ def bbpssw_protocol_bob(q1, q2, bob, socket):
 
 def bbpssw_gates_and_measurement_bob(q1, q2):
     """
-    Performs the gates and measurements for Bob's side of the BBPSSW protocol
-    :param q1: Bob's qubit from the first entangled pair
-    :param q2: Bob's qubit from the second entangled pair
-    :return: Integer 0/1 indicating Bob's measurement outcome
+    Bob: Apply CNOT(q1 to q2), measure only q2.
     """
     q1.cnot(q2)
-    q1.h()
-    m1 = q1.measure()
-    m2 = q2.measure()
-    return m1 + m2
+    m = q2.measure()
+    return m
 

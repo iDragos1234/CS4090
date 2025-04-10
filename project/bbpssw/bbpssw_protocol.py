@@ -1,4 +1,6 @@
 import numpy as np
+import sys
+sys.path.append('./../simulation_utils.py')
 from simulation_utils import *
 from typing import Tuple
 
