@@ -87,15 +87,18 @@ def get_fidel_succ_mean_sd(df: pd.DataFrame):
 data = pd.read_csv('./out.csv')
 
 # Group data by gate and channel fidelity
-data = data.groupby(['Gate fidelity', 'EPR channel fidelity'])\
+grouped = data.groupby(['NUM_ITERATIONS', 'Gate fidelity', 'EPR channel fidelity'])\
 
-# Compute mean and sd for the success probability
-p_succ_mean_sd = data.apply(get_prob_succ_mean_sd, include_groups=False)
-p_succ_mean_sd = series_to_numpy(p_succ_mean_sd)
+p_succ_stats = grouped.apply(get_prob_succ_mean_sd).reset_index()
+f_succ_stats = grouped.apply(get_fidel_succ_mean_sd).reset_index()
 
-# Compute mean and sd for the success fidelity
-f_succ_mean_sd = data.apply(get_fidel_succ_mean_sd, include_groups=False)
-f_succ_mean_sd = series_to_numpy(f_succ_mean_sd)
+# # Compute mean and sd for the success probability
+# p_succ_mean_sd = data.apply(get_prob_succ_mean_sd, include_groups=False)
+# p_succ_mean_sd = series_to_numpy(p_succ_mean_sd)
+#
+# # Compute mean and sd for the success fidelity
+# f_succ_mean_sd = data.apply(get_fidel_succ_mean_sd, include_groups=False)
+# f_succ_mean_sd = series_to_numpy(f_succ_mean_sd)
 
 #-------------------------------------------------------------------------------------------------------------------
 
@@ -240,3 +243,46 @@ ax.view_init(azim=-30, elev=30)
 plt.show()
 
 #-------------------------------------------------------------------------------------------------------------------
+
+p_succ_stats = grouped.apply(get_prob_succ_mean_sd).reset_index()
+p_succ_stats[['p_mean', 'p_std']] = pd.DataFrame(p_succ_stats[0].tolist(), index=p_succ_stats.index)
+
+f_succ_stats = grouped.apply(get_fidel_succ_mean_sd).reset_index()
+f_succ_stats[['f_mean', 'f_std']] = pd.DataFrame(f_succ_stats[0].tolist(), index=f_succ_stats.index)
+
+
+fig = plt.figure(figsize=(12, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+
+ps = np.linspace(0, 1, 50)
+iters_range = sorted(data['NUM_ITERATIONS'].unique())
+
+for niters in iters_range:
+    # Theoretical fidelity surface
+    fidels = [fidelity_succ_theory(p, niters) for p in ps]
+    ax.plot(
+        np.ones_like(ps) * niters,  # X-axis: iterations
+        ps,                         # Y-axis: EPR fidelity
+        fidels,                     # Z-axis: fidelity
+        label=f'Theory {niters} iters'
+    )
+
+
+scatter = ax.scatter3D(
+    f_succ_stats['NUM_ITERATIONS'],
+    f_succ_stats['EPR channel fidelity'],
+    f_succ_stats['f_mean'],
+    c=f_succ_stats['Gate fidelity'],
+    cmap='viridis',
+    s=50,
+    label='Simulation'
+)
+
+
+ax.set_xlabel('Iterations')
+ax.set_ylabel('EPR Fidelity')
+ax.set_zlabel('Output Fidelity')
+ax.legend()
+plt.colorbar(scatter, label='Gate Fidelity')
+plt.show()

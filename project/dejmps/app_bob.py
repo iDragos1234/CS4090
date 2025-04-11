@@ -1,3 +1,5 @@
+import os
+
 from dejmps import dejmps_protocol_bob
 from netqasm.sdk import EPRSocket
 from netqasm.sdk.external import NetQASMConnection, Socket, get_qubit_state
@@ -6,6 +8,7 @@ from netqasm.logging.output import get_new_app_logger
 
 
 def main(app_config=None):
+    NUM_ITERATIONS = int(os.getenv('NUM_ITERATIONS', '1'))
 
     # Create a socket for classical communication
     socket = Socket('bob', 'alice')
@@ -19,33 +22,38 @@ def main(app_config=None):
         epr_sockets=[epr_socket],
     )
 
-    NUM_SAMPLES = 1
+    NUM_ITERATIONS = int(os.getenv("NUM_ITERATIONS", 1))  # Read iterations
 
     # Create Bob's context, initialize EPR pairs inside it and call Bob's DEJMPS method.
     # Finally, print out whether Bob successfully created an EPR Pair with Alice.
     with bob:
-        # Receive two EPR pairs
-        epr1 = epr_socket.recv()[0]
-        bob.flush()
-
-        for sample_idx in range(NUM_SAMPLES):
-            epr2 = epr_socket.recv()[0]
+        for _ in range(1):  # Single sample per configuration
+            current_epr = epr_socket.recv()[0]
             bob.flush()
 
-            # Apply DEJMPS circuit for Bob with U_B = Rot_X(3pi/2)
-            epr1.rot_X(n=3, d=1)
-            epr2.rot_X(n=3, d=1)
-            epr1.cnot(epr2)
-            bob.flush()
+            success = True
+            for _ in range(NUM_ITERATIONS):
+                new_epr = epr_socket.recv()[0]
+                bob.flush()
 
-            m_bob = epr2.measure()
-            bob.flush()
+                # Apply Bob's operations
+                current_epr.rot_X(n=3, d=1)  # Rot_X(-π/2)
+                new_epr.rot_X(n=3, d=1)
+                current_epr.cnot(new_epr)
+                bob.flush()
 
-            # Send Bob's measurement to Alice
-            m_bob = int(m_bob)
-            socket.send_structured(
-                StructuredMessage('m_bob', m_bob)
-            )
+                # Measure and exchange results
+                m_bob = int(new_epr.measure())
+                socket.send_structured(StructuredMessage("m_bob", m_bob))
+                m_alice = int(socket.recv_structured().payload)
+
+                if m_alice != m_bob:
+                    success = False
+                    break
+
+                # Apply correction if needed
+                if m_bob == 1:
+                    current_epr.Z()
 
 
 if __name__ == "__main__":
