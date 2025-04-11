@@ -16,8 +16,8 @@ def main():
     # inside the folder of the simulated protocol, with venv activated.
 
     # Parameter sweeps
-    GATE_FID_SWEEP = [1.0]  # [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
-    EPR_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+    GATE_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+    EPR_FID_SWEEP = [1.0]
     NUM_SAMPLES = 100  # Set number of samples for each parameter configuration
     MAX_ATTEMPTS = 5  # Maximum number of attempts for generating a single sample
 
