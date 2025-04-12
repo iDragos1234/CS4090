@@ -32,10 +32,10 @@ def main():
     try:
         for gate_fidelity in GATE_FID_SWEEP:
             # Set gate fidelity
-            _ = subprocess.check_output(CMD_GATE_FID.format(gate_fidelity), shell=True)
+            subprocess.run(CMD_GATE_FID.format(gate_fidelity), shell=True)
             for epr_fidelity in EPR_FID_SWEEP:
                 # Set EPR channel fidelity
-                _ = subprocess.check_output(CMD_CHANNEL_FID.format(epr_fidelity), shell=True)
+                subprocess.run(CMD_CHANNEL_FID.format(epr_fidelity), shell=True)
 
                 for sample_idx in range(NUM_SAMPLES):
                     # Fail safety: attempt multiple times to generate a single sample
@@ -72,7 +72,7 @@ def main():
         results = pd.DataFrame(results, columns=cols)
         # Dump results to a CSV file, in `append` mode
         results.to_csv('./out.csv', mode='a')
-        # NOTE: to read DataFrame from CSV file, do: `pd.read_csv('./store.pkl')`
+        # NOTE: to read DataFrame from CSV file, do: `pd.read_csv('./store.csv')`
 
         print('Simulation finished')
         print(f'Elapsed time: {perf_counter() - t0}')
