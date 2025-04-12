@@ -60,7 +60,11 @@ def main():
                         raise Exception('Maximum number of attempts reached.')
 
                     m_alice_1, m_alice_2, m_bob_1, m_bob_2, fidelity = parse(output)
-                    results.append([gate_fidelity, epr_fidelity, sample_idx, m_alice_1, m_alice_2, m_bob_1, m_bob_2, fidelity])
+                    results.append([
+                        gate_fidelity, epr_fidelity, sample_idx,
+                        m_alice_1, m_alice_2, m_bob_1, m_bob_2,
+                        fidelity,
+                    ])
                     print(results[-1])
     except Exception as err:
         raise Exception(f'Simulation error: {err}')
@@ -68,7 +72,11 @@ def main():
         # Save simulation results
         print('Saving ...')
         # Create DataFrame of simulation results and save to CSV file
-        cols = ['Gate fidelity', 'EPR channel fidelity', 'Sample index', 'M_Alice_1', 'M_Alice_2', 'M_Bob_1', 'M_Bob_2', 'Fidelity']
+        cols = [
+            'Gate fidelity', 'EPR channel fidelity', 'Sample index',
+            'M_Alice_1', 'M_Alice_2', 'M_Bob_1', 'M_Bob_2',
+            'Fidelity',
+        ]
         results = pd.DataFrame(results, columns=cols)
         # Dump results to a CSV file, in `append` mode
         results.to_csv('./three_to_one.out.csv', mode='a')
