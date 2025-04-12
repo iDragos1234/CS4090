@@ -1,24 +1,14 @@
 import subprocess
-import numpy as np
 import pandas as pd
 from time import perf_counter
 
-
 def parse(bytestring: bytes):
-    lines = bytestring.decode('utf-8').strip().splitlines()
-    for line in reversed(lines):
-        try:
-            parts = line.strip().split()
-            if len(parts) == 3:
-                return int(parts[0]), int(parts[1]), float(parts[2])
-        except Exception:
-            continue
-    raise ValueError("Could not find valid output line.")
-
+    m_alice, m_bob, fidelity = bytestring.decode('utf-8').split()
+    return int(m_alice), int(m_bob), float(fidelity)
 
 def main():
-    GATE_FID_SWEEP = [1.0]
-    EPR_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+    GATE_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8]
+    EPR_FID_SWEEP = [1.0]
     NUM_SAMPLES = 100
     MAX_ATTEMPTS = 5
 
@@ -30,44 +20,33 @@ def main():
     num_errors = 0
 
     try:
-        for gate_fid in GATE_FID_SWEEP:
-            _ = subprocess.check_output(CMD_GATE_FID.format(gate_fid), shell=True)
-            for epr_fid in EPR_FID_SWEEP:
-                _ = subprocess.check_output(CMD_CHANNEL_FID.format(epr_fid), shell=True)
-
+        for gate_fidelity in GATE_FID_SWEEP:
+            subprocess.check_output(CMD_GATE_FID.format(gate_fidelity), shell=True)
+            for epr_fidelity in EPR_FID_SWEEP:
+                subprocess.check_output(CMD_CHANNEL_FID.format(epr_fidelity), shell=True)
                 for sample_idx in range(NUM_SAMPLES):
-                    attempt_num = 0
-                    flag = False
                     output = None
-
+                    flag = False
+                    attempt_num = 0
                     while not flag and attempt_num < MAX_ATTEMPTS:
                         try:
                             output = subprocess.check_output('netqasm simulate', shell=True)
-                            print("Raw subprocess output:\n", output.decode("utf-8"))
-                        except Exception:
+                            flag = True
+                        except:
                             num_errors += 1
                             attempt_num += 1
-                            continue
-                        else:
-                            flag = True
-
                     if attempt_num >= MAX_ATTEMPTS:
-                        raise Exception("Max attempts reached")
-
+                        raise Exception('Maximum attempts reached.')
                     m_alice, m_bob, fidelity = parse(output)
-                    results.append([gate_fid, epr_fid, sample_idx, m_alice, m_bob, fidelity])
+                    results.append([gate_fidelity, epr_fidelity, sample_idx, m_alice, m_bob, fidelity])
                     print(results[-1])
-    except Exception as e:
-        print(f"Error: {e}")
+    except Exception as err:
+        raise Exception(f'Error: {err}')
     finally:
-        df = pd.DataFrame(
-            results, columns=["Gate fidelity", "EPR channel fidelity", "Sample index", "M_Alice", "M_Bob", "Fidelity"]
-        )
-        df.to_csv('./out_bbpssw.csv', mode='a')
-        print("Simulation completed.")
-        print(f"Total runtime: {perf_counter() - t0:.2f}s")
-        print(f"Total errors: {num_errors}")
+        cols = ['Gate fidelity', 'EPR channel fidelity', 'Sample index', 'M_Alice', 'M_Bob', 'Fidelity']
+        results_df = pd.DataFrame(results, columns=cols)
+        results_df.to_csv('./out_bbpssw.csv', mode='a')
+        print(f'Finished. Time: {perf_counter() - t0}, Errors: {num_errors}')
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
