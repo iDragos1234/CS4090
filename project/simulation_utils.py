@@ -121,10 +121,12 @@ class QuantumCircuit:
         Sequence of gates
     """
 
+    # TODO: implement caching
+
     def __init__(self, gates: List[Gate]):
         self.gates = gates
 
-    def __call__(self, rho):
+    def __call__(self, rho: np.matrix):
         return reduce(lambda dm, gate: gate(dm), self.gates, rho)
     
 #-------------------------------------------------------------
