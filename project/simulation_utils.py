@@ -155,15 +155,15 @@ class PartialTrace:
 
     Attributes
     ----------
-    nqubits: `int`
+    num_qubits: `int`
         Total number of qubits in the system
 
     out_qubits: `list[int]`
         Indices of qubits to be traced out
     """
     
-    def __init__(self, nqubits: int, out_qubits: List[int]):
-        self.nqubits = nqubits
+    def __init__(self, num_qubits: int, out_qubits: List[int]):
+        self.num_qubits = num_qubits
         self.out_qubits = set(out_qubits)
     
     def __call__(self, rho: np.matrix):
@@ -175,7 +175,7 @@ class PartialTrace:
         def reduce_func(accum, basis):
             M = kron([
                 next(basis) if i in self.out_qubits else I() 
-                for i in range(self.nqubits)
+                for i in range(self.num_qubits)
             ])
             return accum + (M.H @ rho @ M)
 
@@ -188,7 +188,7 @@ class POVM:
 
     Attributes
     ----------
-    nqubits: `int`
+    num_qubits: `int`
         Total number of qubits in the system
 
     meas_qubits: `list[int]`
@@ -199,18 +199,18 @@ class POVM:
     """
 
     def __init__(self, 
-        nqubits: int, 
+        num_qubits: int, 
         meas_qubits: List[int],
         partial_trace: bool=False
     ):
-        self.nqubits = nqubits
+        self.num_qubits = num_qubits
         self.meas_qubits = set(meas_qubits)
         self.partial_trace = partial_trace
 
     def __call__(self, rho: np.matrix):
 
         Ms = POVM._create_povm(
-            self.nqubits, 
+            self.num_qubits, 
             self.meas_qubits,
             self.partial_trace,
         )
@@ -234,17 +234,17 @@ class POVM:
         return np.array(probs), np.array(rho_outs)
 
     @staticmethod
-    def _get_comp_bases(nqubits: int):
+    def _get_comp_bases(num_qubits: int):
         # NOTE: this function evaluates lazily!
         BASE = [comp_state(0), comp_state(1)]
         return iter(
-            iter(BASE[(i >> j) & 1] for j in range(nqubits))
-            for i in range(2 ** nqubits)
+            iter(BASE[(i >> j) & 1] for j in range(num_qubits))
+            for i in range(2 ** num_qubits)
         )
     
     @staticmethod
     def _create_povm(
-        nqubits: int, 
+        num_qubits: int, 
         meas_qubits: Set[int],
         partial_trace: bool,
     ):
@@ -259,7 +259,7 @@ class POVM:
         def map_func(basis):
             return kron([
                 foo(next(basis)) if i in meas_qubits else I() 
-                for i in range(nqubits)
+                for i in range(num_qubits)
             ])
 
         return map(map_func, comp_bases)
