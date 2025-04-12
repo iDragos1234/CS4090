@@ -44,8 +44,8 @@ def main(app_config=None):
 
         # Convert Alice's and Bob's Z basis measurements into ZZ basis measurements
         # (equivalent to measurements in the Bell state) of their respective epr1, epr2 qubits
-        m_alice = int(m_alice_1) ^ int(m_alice_2)
-        m_bob = int(m_bob_1) ^ int(m_bob_2)
+        m_alice_1, m_alice_2 = int(m_alice_1),  int(m_alice_2)
+        m_bob_1, m_bob_2 = int(m_bob_1), int(m_bob_2)
 
         # Get the density matrix of the output EPR pair (i.e., epr3)
         epr3_dm = get_qubit_state(epr3, reduced_dm=False)
@@ -55,7 +55,7 @@ def main(app_config=None):
         fidelity = compute_fidelity(epr3_dm, target_state)
 
         # Output simulation results in the following format:
-        print(m_alice, m_bob, fidelity)
+        print(m_alice_1, m_alice_2, m_bob_1, m_bob_2, fidelity)
 
 
 def compute_fidelity(dm, ket):
