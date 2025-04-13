@@ -2,43 +2,29 @@ import subprocess
 import pandas as pd
 from time import perf_counter
 
-
-# TODO: write output data to CSV in batches
-
 def parse(bytestring: bytes):
-    """Decodes and parses simulation outputs."""
     m_alice, m_bob, fidelity = bytestring.decode('utf-8').split()
     return int(m_alice), int(m_bob), float(fidelity)
 
-
 def main():
-    # NOTE: To simulate a protocol, this python file needs to be executed
-    # inside the folder of the simulated protocol, with venv activated.
+    GATE_FID_SWEEP = [0.6, 0.8]
+    EPR_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+    NUM_SAMPLES = 100
+    MAX_ATTEMPTS = 5
 
-    # Parameter sweeps
-    GATE_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8]
-    EPR_FID_SWEEP = [1.0]
-    NUM_SAMPLES = 100  # Set number of samples for each parameter configuration
-    MAX_ATTEMPTS = 5  # Maximum number of attempts for generating a single sample
-
-    # Commands to change the gate and channel fidelities in network.yaml
     CMD_GATE_FID = 'sed -i "s/^    gate_fidelity: .*$/    gate_fidelity: {}/g" network.yaml'
     CMD_CHANNEL_FID = 'sed -i "s/^    fidelity: .*$/    fidelity: {}/g" network.yaml'
 
     results = []
     t0 = perf_counter()
-    num_errors = 0  # Keep track of the number of errors raised by netqasm simulation
+    num_errors = 0
 
     try:
         for gate_fidelity in GATE_FID_SWEEP:
-            # Set gate fidelity
             subprocess.run(CMD_GATE_FID.format(gate_fidelity), shell=True)
             for epr_fidelity in EPR_FID_SWEEP:
-                # Set EPR channel fidelity
                 subprocess.run(CMD_CHANNEL_FID.format(epr_fidelity), shell=True)
-
                 for sample_idx in range(NUM_SAMPLES):
-                    # Fail safety: attempt multiple times to generate a single sample
                     output = None
                     flag = False
                     attempt_num = 0
@@ -63,21 +49,12 @@ def main():
                     results.append([gate_fidelity, epr_fidelity, sample_idx, m_alice, m_bob, fidelity])
                     print(results[-1])
     except Exception as err:
-        raise Exception(f'Simulation error: {err}')
+        raise Exception(f'Error: {err}')
     finally:
-        # Save simulation results
-        print('Saving ...')
-        # Create DataFrame of simulation results and save to CSV file
         cols = ['Gate fidelity', 'EPR channel fidelity', 'Sample index', 'M_Alice', 'M_Bob', 'Fidelity']
-        results = pd.DataFrame(results, columns=cols)
-        # Dump results to a CSV file, in `append` mode
-        results.to_csv('./out.csv', mode='a')
-        # NOTE: to read DataFrame from CSV file, do: `pd.read_csv('./store.csv')`
-
-        print('Simulation finished')
-        print(f'Elapsed time: {perf_counter() - t0}')
-        print(f'No. Errors: {num_errors}')
-
+        results_df = pd.DataFrame(results, columns=cols)
+        results_df.to_csv('./out_bbpssw.csv', mode='a')
+        print(f'Finished. Time: {perf_counter() - t0}, Errors: {num_errors}')
 
 if __name__ == '__main__':
     main()

@@ -1,9 +1,5 @@
-from dejmps import dejmps_protocol_alice
-from netqasm.sdk import Qubit, EPRSocket
+from netqasm.sdk import EPRSocket
 from netqasm.sdk.external import NetQASMConnection, Socket, get_qubit_state
-from netqasm.sdk.toolbox.sim_states import qubit_from, to_dm, get_fidelity
-from netqasm.sdk.classical_communication.message import StructuredMessage
-from netqasm.logging.output import get_new_app_logger
 
 import numpy as np
 
@@ -22,55 +18,38 @@ def main(app_config=None):
         epr_sockets=[epr_socket],
     )
 
-    NUM_SAMPLES = 1
-    results = []
-
-    # Create Alice's context, initialize EPR pairs inside it and call Alice's DEJMPS method.
-    # Finally, print out whether Alice successfully created an EPR Pair with Bob.
     with alice:
         # Create two EPR pairs
-        epr1 = epr_socket.create()[0]
+        epr1, epr2 = epr_socket.create(number=2)
+
+        # Apply DEJMPS circuit for Alice with U_A = Rot_X(pi/2)
+        epr1.rot_X(n=1, d=1)  # U_A
+        epr2.rot_X(n=1, d=1)  # U_A
+        epr1.cnot(epr2)       # CNOT
+        m_alice = epr2.measure()
         alice.flush()
 
-        for sample_idx in range(NUM_SAMPLES):
-            epr2 = epr_socket.create()[0]
-            alice.flush()
+        # Collect Alice's and Bob's measurements
+        m_alice = int(m_alice)
+        m_bob = int(socket.recv_structured().payload)
 
-            # Apply DEJMPS circuit for Alice with U_A = Rot_X(pi/2)
-            epr1.rot_X(n=1, d=1)  # U_A
-            epr2.rot_X(n=1, d=1)  # U_A
-            epr1.cnot(epr2)       # CNOT
-            alice.flush()
+        # Get the density matrix of the output EPR pair
+        epr1_dm = get_qubit_state(epr1, reduced_dm=False)
 
-            m_alice = epr2.measure()
-            alice.flush()
+        # Compute fidelity wrt. target state (i.e., the pure Bell state)
+        target_state = 1 / np.sqrt(2) * np.array([1, 0, 0, 1], dtype=complex)  # |\phi_{00}> Bell state
+        fidelity = compute_fidelity(epr1_dm, target_state)
 
-            # Collect Alice's and Bob's measurements
-            m_alice = int(m_alice)
-            m_bob = int(socket.recv_structured().payload)
+        debug_message = f'DEJMPS Simulation:\n'\
+                        f'------------------\n'\
+                        f'Measurements: m_alice = {m_alice}, m_bob = {m_bob};\n'\
+                        f'Successful? {m_alice == m_bob};\n'\
+                        f'EPR_out state: \n{np.round(epr1_dm, 5)};\n'\
+                        f'Target state: \n{np.round(target_state, 5)};\n'\
+                        f'Fidelity: {fidelity};\n'
 
-            # Get the density matrix of the output EPR pair
-            epr1_dm = get_qubit_state(epr1, reduced_dm=False)
-
-            # Compute fidelity wrt. target state (i.e., the pure Bell state)
-            target_state = 1 / np.sqrt(2) * np.array([1, 0, 0, 1], dtype=complex)
-            fidelity = compute_fidelity(epr1_dm, target_state)
-
-            debug_message = f'DEJMPS Simulation:\n'\
-                            f'------------------\n'\
-                            f'Measurements: m_alice = {m_alice}, m_bob = {m_bob};\n'\
-                            f'Successful? {m_alice == m_bob};\n'\
-                            f'EPR_out state: \n{np.round(epr1_dm, 5)};\n'\
-                            f'Target state: \n{np.round(target_state, 5)};\n'\
-                            f'Fidelity: {fidelity};\n'
-
-            # Output simulation results in the following format:
-            print(m_alice, m_bob, fidelity)
-            results.append([m_alice, m_bob, fidelity])
-
-        # p_succ = 1 - np.mean(list(map(lambda x: x[0] ^ x[1], results)))
-        # f_succ_mean = np.mean(list(map(lambda x: x[2], filter(lambda x: x[0] == x[1], results))))
-        # print(p_succ, f_succ_mean)
+        # Output simulation results in the following format:
+        print(m_alice, m_bob, fidelity)
 
 
 def compute_fidelity(dm, ket):
