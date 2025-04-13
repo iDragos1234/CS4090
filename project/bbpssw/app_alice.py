@@ -29,11 +29,18 @@ def main(app_config=None):
 
             # Target Bell state is |phi00⟩ = (|00⟩ - |11⟩)/√2
             target_state = 1 / np.sqrt(2) * np.array([1, 0, 0, 1], dtype=complex)
-            fidelity = np.abs(target_state.conj().T @ combined_dm @ target_state).real
+            fidelity = compute_fidelity(combined_dm, target_state)
         else:
             fidelity = 0.0
 
         print(m_alice, m_bob, fidelity)
+
+
+def compute_fidelity(dm, ket):
+    """Compute fidelity between a density matrix and a ket state."""
+    fidelity = np.conjugate(ket) @ dm @ ket
+    assert np.imag(fidelity) == 0
+    return np.real(fidelity)
 
 
 if __name__ == "__main__":

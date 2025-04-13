@@ -7,8 +7,8 @@ def parse(bytestring: bytes):
     return int(m_alice), int(m_bob), float(fidelity)
 
 def main():
-    GATE_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8]
-    EPR_FID_SWEEP = [1.0]
+    GATE_FID_SWEEP = [0.6, 0.8]
+    EPR_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
     NUM_SAMPLES = 100
     MAX_ATTEMPTS = 5
 
@@ -21,9 +21,9 @@ def main():
 
     try:
         for gate_fidelity in GATE_FID_SWEEP:
-            subprocess.check_output(CMD_GATE_FID.format(gate_fidelity), shell=True)
+            subprocess.run(CMD_GATE_FID.format(gate_fidelity), shell=True)
             for epr_fidelity in EPR_FID_SWEEP:
-                subprocess.check_output(CMD_CHANNEL_FID.format(epr_fidelity), shell=True)
+                subprocess.run(CMD_CHANNEL_FID.format(epr_fidelity), shell=True)
                 for sample_idx in range(NUM_SAMPLES):
                     output = None
                     flag = False
@@ -31,12 +31,20 @@ def main():
                     while not flag and attempt_num < MAX_ATTEMPTS:
                         try:
                             output = subprocess.check_output('netqasm simulate', shell=True)
-                            flag = True
-                        except:
+                        except (subprocess.SubprocessError, TimeoutError) as err:
                             num_errors += 1
                             attempt_num += 1
+                            pass
+                        except Exception as other_err:
+                            num_errors += 1
+                            raise Exception(f'Other errors: {other_err}')
+                        else:
+                            # Signal that sample was successfully generated
+                            flag = True
+                    # If max attempts is reached, terminate
                     if attempt_num >= MAX_ATTEMPTS:
-                        raise Exception('Maximum attempts reached.')
+                        raise Exception('Maximum number of attempts reached.')
+
                     m_alice, m_bob, fidelity = parse(output)
                     results.append([gate_fidelity, epr_fidelity, sample_idx, m_alice, m_bob, fidelity])
                     print(results[-1])
