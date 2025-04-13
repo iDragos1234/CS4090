@@ -1,6 +1,6 @@
 nodes:
   - name: "the_hague"
-    gate_fidelity: 1.0
+    gate_fidelity: 0.8
     qubits:
       - id: 0
         t1: 0
@@ -12,7 +12,7 @@ nodes:
         t1: 0
         t2: 0
   - name: "delft"
-    gate_fidelity: 1.0
+    gate_fidelity: 0.8
     qubits:
       - id: 0
         t1: 0
