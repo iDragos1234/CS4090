@@ -25,8 +25,6 @@ def main(app_config=None):
         # protocol success check
         success = (m_alice == m_bob)
         if success:
-            # bob_epr1 = Qubit(node='bob', qubit_id=epr1.qubit_id)
-            # combined_dm = get_qubit_state([epr1, bob_epr1], reduced_dm=False)
             combined_dm = get_qubit_state([epr1], reduced_dm=False)
 
             # Target Bell state is |phi00⟩ = (|00⟩ - |11⟩)/√2
@@ -37,7 +35,6 @@ def main(app_config=None):
 
         print(m_alice, m_bob, fidelity)
 
-# def compute_fidelity(dm, ket):
 
 if __name__ == "__main__":
     main()
