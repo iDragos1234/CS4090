@@ -18,7 +18,7 @@ def main(app_config=None):
     )
 
     with bob:
-        # Receive two EPR pairs
+        # Receive three EPR pairs
         epr1, epr2, epr3 = epr_socket.recv(number=3)
 
         # Apply Metwally protocol for Bob with gates U_B = Rot_X(-pi/2)
