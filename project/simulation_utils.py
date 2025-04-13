@@ -134,19 +134,67 @@ class QuantumCircuit:
 # Define trace-preserving operations
 
 class DepolarizingChannel:
-    """Depolarizing channel for 2-qubit state (in Density Matrix form)."""
+    r"""
+    Depolarizing channel operation. 
+    Implemented according to the formula in chapter 8.3.4 from Nielsen and Chuang, 
+    \"Quantum Computation and Quantum Information\":
 
-    def __init__(self, p: float):
+    $$ \epsilon(\rho) = p\rho + \frac{1 - p}{d} \left( I \rho I + X \rho X + Y \rho Y + Z \rho Z \right)$$.
+
+    It is generalized to multi-qubit systems by using the Pauli Strings as Kraus operators:
+
+    $$ \epsilon(\rho) = p\rho + \frac{1 - p}{d} \sum_{U \in \text{Pauli strings}} U \rho U$$.
+    
+    Attributes
+    ----------
+    p: `float`
+        Depolarizing channel parameter
+
+    num_qubits: `int`
+        Total number of qubits in the system
+
+    on_qubits: `List[int]`
+        Indices of qubits on which to apply the depolarizing channel
+    """
+    def __init__(self, p: float, num_qubits: int, on_qubits: List[int]):
         assert 0 <= p <= 1
         self.p = p
+        self.num_qubits = num_qubits
+        self.on_qubits = set(on_qubits)
+    
+    def __call__(self, rho: np.matrix):
+        # if self.p == 0.0:
+        #     return I(2 ** self.num_qubits)
 
-    def __call__(self, rho: np.matrix, nstates: int=None):
-        nrows, ncols = np.shape(rho)
-        assert nrows == ncols, \
-            'Depolarizing channel can be applied only to density matrices'
-        if nstates is None:
-            nstates = nrows
-        return self.p * rho + (1 - self.p) / nstates * I(nstates)
+        # if self.p == 1.0:
+        #     return rho
+        d = 4 ** len(self.on_qubits)
+        pauli_strs = self.get_pauli_strings(len(self.on_qubits))
+        
+        def get_kraus_op(pauli_str):
+            kraus_op = kron([
+                next(pauli_str) if i in self.on_qubits else I()
+                for i in range(self.num_qubits)
+            ])
+            return kraus_op
+    
+        def apply(A, dm):
+            return A @ dm @ A.H
+        
+        id = sum([
+            apply(get_kraus_op(pauli_str), rho)
+            for pauli_str in pauli_strs
+        ])
+
+        return np.asmatrix(self.p * rho + ((1 - self.p) / d) * id)
+
+    @staticmethod
+    def get_pauli_strings(n: int=1):
+        BASIS = [I(), X(), Y(), Z()]
+        return iter(
+            iter(BASIS[(i // (4 ** j)) % 4] for j in reversed(range(n)))
+            for i in range(4 ** n)
+        )
     
 
 class PartialTrace:
@@ -298,6 +346,6 @@ def bell_state(a: Literal[0, 1]=0, b: Literal[0, 1]=0):
 def werner_state(p: float):
     phi_00 = bell_state(0, 0)
     rho_00 = phi_00 @ phi_00.H
-    return DepolarizingChannel(p)(rho_00)
+    return DepolarizingChannel(p, num_qubits=2, on_qubits=[0, 1])(rho_00)
 
 #-------------------------------------------------------------
