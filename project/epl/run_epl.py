@@ -1,97 +1,60 @@
 import subprocess
-import time
+import pandas as pd
 from time import perf_counter
-import numpy as np
 
-# Configuration
-GATE_FID_SWEEP = np.linspace(0.5, 1.0, 5)  # Gate fidelity range
-EPR_FID_SWEEP = np.linspace(0.4, 1.0, 5)  # Channel fidelity range
-NUM_SAMPLES = 10  # Samples per configuration
-MAX_ATTEMPTS = 5  # Max attempts per sample
-TIMEOUT = 10  # Seconds per simulation attempt
-
-# sed commands template
-CMD_GATE_FID = r'sed -i "s/^\(    gate_fidelity: \).*/\1{}/" network.yaml'
-CMD_CHANNEL_FID = r'sed -i "s/^\(    fidelity: \).*/\1{}/" network.yaml'
-
-
-def parse_success(output: bytes) -> bool:
-    """Parse simulation output for success/failure"""
-    output_str = output.decode()
-    alice_success = "EPL protocol success: True" in output_str
-    bob_success = "EPL protocol success: True" in output_str
-    return alice_success and bob_success
-
-
-def run_simulation():
-    """Run single simulation and return success status"""
-    try:
-        output = subprocess.check_output(
-            "netqasm simulate",
-            shell=True,
-            timeout=TIMEOUT
-        )
-        return parse_success(output)
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-        return False
-
+def parse(bytestring: bytes):
+    m_alice, m_bob, fidelity = bytestring.decode('utf-8').split()
+    return int(m_alice), int(m_bob), float(fidelity)
 
 def main():
+    GATE_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+    EPR_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+    NUM_SAMPLES = 100
+    MAX_ATTEMPTS = 5
+
+    CMD_GATE_FID = 'sed -i "s/^    gate_fidelity: .*$/    gate_fidelity: {}/g" network.yaml'
+    CMD_CHANNEL_FID = 'sed -i "s/^    fidelity: .*$/    fidelity: {}/g" network.yaml'
+
     results = []
-    num_errors = 0
     t0 = perf_counter()
+    num_errors = 0
 
-    for gate_fid in GATE_FID_SWEEP:
-        # Update gate fidelity for all nodes
-        subprocess.run(
-            CMD_GATE_FID.format(gate_fid),
-            shell=True,
-            check=True
-        )
+    try:
+        for gate_fidelity in GATE_FID_SWEEP:
+            subprocess.run(CMD_GATE_FID.format(gate_fidelity), shell=True)
+            for epr_fidelity in EPR_FID_SWEEP:
+                subprocess.run(CMD_CHANNEL_FID.format(epr_fidelity), shell=True)
+                for sample_idx in range(NUM_SAMPLES):
+                    output = None
+                    flag = False
+                    attempt_num = 0
+                    while not flag and attempt_num < MAX_ATTEMPTS:
+                        try:
+                            output = subprocess.check_output('netqasm simulate', shell=True)
+                        except (subprocess.SubprocessError, TimeoutError) as err:
+                            num_errors += 1
+                            attempt_num += 1
+                            pass
+                        except Exception as other_err:
+                            num_errors += 1
+                            raise Exception(f'Other errors: {other_err}')
+                        else:
+                            # Signal that sample was successfully generated
+                            flag = True
+                    # If max attempts is reached, terminate
+                    if attempt_num >= MAX_ATTEMPTS:
+                        raise Exception('Maximum number of attempts reached.')
 
-        for epr_fid in EPR_FID_SWEEP:
-            # Update channel fidelity
-            subprocess.run(
-                CMD_CHANNEL_FID.format(epr_fid),
-                shell=True,
-                check=True
-            )
+                    m_alice, m_bob, fidelity = parse(output)
+                    results.append([gate_fidelity, epr_fidelity, sample_idx, m_alice, m_bob, fidelity])
+                    print(results[-1])
+    except Exception as err:
+        raise Exception(f'Error: {err}')
+    finally:
+        cols = ['Gate fidelity', 'EPR channel fidelity', 'Sample index', 'M_Alice', 'M_Bob', 'Fidelity']
+        results_df = pd.DataFrame(results, columns=cols)
+        results_df.to_csv('./out_epl.csv', mode='a')
+        print(f'Finished. Time: {perf_counter() - t0}, Errors: {num_errors}')
 
-            successes = 0
-            for _ in range(NUM_SAMPLES):
-                attempt = 0
-                while attempt < MAX_ATTEMPTS:
-                    try:
-                        if run_simulation():
-                            successes += 1
-                            break
-                    except Exception as e:
-                        num_errors += 1
-                    finally:
-                        attempt += 1
-
-            success_rate = successes / NUM_SAMPLES
-            results.append({
-                'gate_fidelity': round(gate_fid, 2),
-                'epr_fidelity': round(epr_fid, 2),
-                'success_rate': success_rate,
-                'samples': NUM_SAMPLES,
-                'errors': num_errors
-            })
-
-    # Restore original network.yaml
-    subprocess.run("git checkout -- network.yaml", shell=True)
-
-    print(f"\nCompleted in {perf_counter() - t0:.2f}s")
-    print("Results:")
-    for result in results:
-        print(
-            f"Gate Fid: {result['gate_fidelity']} | "
-            f"EPR Fid: {result['epr_fidelity']} | "
-            f"Success: {result['success_rate']:.2%} | "
-            f"Errors: {result['errors']}"
-        )
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -27,7 +27,7 @@ def main(app_config=None):
         if success:
             combined_dm = get_qubit_state([epr1], reduced_dm=False)
 
-            # Target Bell state is |phi00⟩ = (|00⟩ - |11⟩)/√2
+            # Target Bell state is |phi00⟩ = (|00⟩ + |11⟩)/√2
             target_state = 1 / np.sqrt(2) * np.array([1, 0, 0, 1], dtype=complex)
             fidelity = compute_fidelity(combined_dm, target_state)
         else:
