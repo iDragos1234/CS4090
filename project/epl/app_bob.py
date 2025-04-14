@@ -1,22 +1,24 @@
-from epl import epl_protocol_bob
 from netqasm.sdk import EPRSocket
-from netqasm.sdk.external import NetQASMConnection, Socket, get_qubit_state
-from netqasm.sdk.qubit import Qubit
+from netqasm.sdk.external import NetQASMConnection, Socket
 from netqasm.sdk.classical_communication.message import StructuredMessage
 
 def main(app_config=None):
-    
-    # Create a socket for classical communication
-    pass
+    socket = Socket('bob', 'alice')
+    epr_socket = EPRSocket('alice')
+    bob = NetQASMConnection(
+        app_name=app_config.app_name,
+        epr_sockets=[epr_socket],
+    )
+    with bob:
+        epr1, epr2 = epr_socket.recv(number=2)
 
-    # Create a EPR socket for entanglement generation
-    pass
+        epr1.cnot(epr2)  # CNOT: control epr1, target epr2
+        m_bob = epr2.measure()
 
-    # Initialize Bob's NetQASM connection
-    pass
+        bob.flush()
 
-    # Create Bob's context, initialize EPR pairs inside it and call Bob's EPL method. Finally, print out whether or not Bob successfully created an EPR Pair with Alice.
-
+        m_bob = int(m_bob)
+        socket.send_structured(StructuredMessage('m_bob', m_bob))
 
 if __name__ == "__main__":
     main()
