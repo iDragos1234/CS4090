@@ -7,7 +7,7 @@ def parse(bytestring: bytes):
     return int(m_alice), int(m_bob), float(fidelity)
 
 def main():
-    GATE_FID_SWEEP = [0.6, 0.8]
+    GATE_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
     EPR_FID_SWEEP = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
     NUM_SAMPLES = 100
     MAX_ATTEMPTS = 5
