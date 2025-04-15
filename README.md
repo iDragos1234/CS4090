@@ -27,21 +27,25 @@ Entanglement distillation protocols provided in this project:
 4. Three-to-one
 
 We used only __depolarizing noise__, originating from only two possible sources of noise:
-* __Entangle state noise__;
+* __Entangled state noise__;
 * __Gate noise__.
 
 
-### Entangled gate noise:
-* To perform distillation, Alice and Bob must share entangled EPR (Einstein-Podolsky-Rosen) pairs.
+### Entangled gate noise
 
-* These EPR pairs are assumed to be __Werner states__ (always), wherein a depolarizing channel of parameter $p$ is applied to the pure Bell state $\vert\phi_{00}\rangle = \frac{1}{\sqrt{2}} \left( \vert00\rangle + \vert11\rangle \right)$:
-$\rho_{AB}(p) = p \vert\phi_{00}\rangle \langle\phi_{00}\vert + \frac{1 - p}{4} \mathbb{I}_4.$
+To perform distillation, Alice and Bob must share entangled EPR (Einstein-Podolsky-Rosen) pairs.
+
+These EPR pairs are assumed to be __Werner states__ (always), wherein a depolarizing channel of parameter $p$ is applied to the pure Bell state $\vert\phi_{00}\rangle = \frac{1}{\sqrt{2}} \left( \vert00\rangle + \vert11\rangle \right)$:
+
+$$\rho_{AB}(p) = p \vert\phi_{00}\rangle \langle\phi_{00}\vert + \frac{1 - p}{4} \mathbb{I}_4.$$
 
 
 ### Gate noise
 
-* Unitary operations used during distillation are assumed to be noisy gates and are modelled by a depolarizing channel of parameter $g$ taking effect after applying the pure version of the unitary:
-$U_\text{noisy} \rho_{AB} U_\text{noisy}^\dagger = g U \rho_{AB} U^\dagger + \frac{1 - g}{d} \mathbb{I}_d.$
+Unitary operations used during distillation are assumed to be noisy gates and are modelled by a depolarizing channel of parameter $g$ taking effect after applying the pure version of the unitary:
+
+$$U_\text{noisy} \rho_{AB} U_\text{noisy}^\dagger = g U \rho_{AB} U^\dagger + \frac{1 - g}{d} \mathbb{I}_d$$
+
 where $d$ is the dimension of the state space.
 
 
