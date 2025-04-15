@@ -36,9 +36,7 @@ We used only __depolarizing noise__, originating from only two possible sources 
 
 * These EPR pairs are assumed to be __Werner states__ (always), wherein a depolarizing channel of parameter $p$ is applied to the pure Bell state $\vert\phi_{00}\rangle = \frac{1}{\sqrt{2}} \left( \vert00\rangle + \vert11\rangle \right)$:
 $$
-\begin{equation}
-  \rho_{AB}(p) = p \vert\phi_{00}\rangle \langle\phi_{00}\vert + \frac{1 - p}{4} \mathbb{I}_4.
-\end{equation}
+\rho_{AB}(p) = p \vert\phi_{00}\rangle \langle\phi_{00}\vert + \frac{1 - p}{4} \mathbb{I}_4.
 $$
 
 
@@ -46,9 +44,7 @@ $$
 
 * Unitary operations used during distillation are assumed to be noisy gates and are modelled by a depolarizing channel of parameter $g$ taking effect after applying the pure version of the unitary:
 $$
-\begin{equation}
-  U_\text{noisy} \rho_{AB} U_\text{noisy}^\dagger = g U \rho_{AB} U^\dagger + \frac{1 - g}{d} \mathbb{I}_d.
-\end{equation}
+U_\text{noisy} \rho_{AB} U_\text{noisy}^\dagger = g U \rho_{AB} U^\dagger + \frac{1 - g}{d} \mathbb{I}_d.
 $$
 where $d$ is the dimension of the state space.
 
